@@ -19,12 +19,13 @@ public class WordCount {
 
         DataSet<String> text = env.readTextFile(params.get("input"));
 
-        DataSet<String> filtered = text.filter((FilterFunction<String>) value -> value.startsWith("N"));
-        DataSet<Tuple2<String, Integer>> tokenized = filtered.map(new Tokenizer());
+        // hint:
+        // 1. filter the data set to keep only words that start with "N"
+        // 2. use the Tokenizer class to map the filtered data set to (word, 1) tuples
+        // 3. group by the first tuple field and sum up the second tuple field
+        // TODO: Your code here
 
-        DataSet<Tuple2<String, Integer>> counts = tokenized.groupBy(new int[]{
-                0
-        }).sum(1);
+        DataSet<Tuple2<String, Integer>> counts;
         if (params.has("output")) {
             counts.writeAsCsv(params.get("output"), "\n", " ");
 
