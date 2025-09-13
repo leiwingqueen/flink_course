@@ -44,6 +44,11 @@
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.example.flink.WordCount</mainClass>
+                        </manifest>
+                    </archive>
                 </configuration>
                 <executions>
                     <execution>
@@ -55,9 +60,7 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
-
     </build>
     <dependencies>
         <dependency>
