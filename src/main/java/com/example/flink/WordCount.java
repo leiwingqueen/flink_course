@@ -11,6 +11,7 @@ public class WordCount {
     public static void main(String[] args)
             throws Exception {
         ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        // env.setParallelism(1);
 
         ParameterTool params = ParameterTool.fromArgs(args);
 
