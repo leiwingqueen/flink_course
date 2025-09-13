@@ -1,7 +1,7 @@
 package com.example.flink;//package p1;
 
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -23,9 +23,13 @@ public class WordCount {
         // 1. filter the data set to keep only words that start with "N"
         // 2. use the Tokenizer class to map the filtered data set to (word, 1) tuples
         // 3. group by the first tuple field and sum up the second tuple field
-        // TODO: Your code here
+        // Your code here
+        DataSet<Tuple2<String, Integer>> counts=text.filter((s) -> s.startsWith("N"))
+                .map(s -> new Tuple2<String, Integer>(s, 1))
+                .returns(Types.TUPLE(Types.STRING,Types.INT)) // 需要显示指定类型
+                .groupBy(0).sum(1);
 
-        DataSet<Tuple2<String, Integer>> counts;
+
         if (params.has("output")) {
             counts.writeAsCsv(params.get("output"), "\n", " ");
 
