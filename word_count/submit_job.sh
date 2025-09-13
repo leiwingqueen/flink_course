@@ -1,0 +1,1 @@
+/Users/leiwingqueen/Documents/file.nosync/3rd/flink-1.12.2/bin/flink run -p 3 -c com.example.flink.WordCount ./target/word-count-0.0.1-SNAPSHOT.jar --input /Users/leiwingqueen/Documents/file.nosync/private_project/flink_course/word_count/wc.txt --output /Users/leiwingqueen/Documents/file.nosync/private_project/flink_course/word_count/output
