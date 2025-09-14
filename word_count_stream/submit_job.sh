@@ -1,0 +1,1 @@
+/Users/leiwingqueen/Documents/file.nosync/3rd/flink-1.12.2/bin/flink run -p 3 -c com.example.flink.WordCountStream ./target/word-count-stream-0.0.1-SNAPSHOT.jar
