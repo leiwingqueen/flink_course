@@ -2,6 +2,7 @@ package com.example.flink;
 
 import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.operators.base.JoinOperatorBase;
 import org.apache.flink.api.common.typeinfo.Types;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
@@ -47,7 +48,8 @@ public class InnerJoin {
             }
             return new Tuple2<>(Integer.parseInt(arr[0]), arr[1]);
         }).returns(Types.TUPLE(Types.INT, Types.STRING));
-        DataSet<Tuple3<Integer, String, String>> joined = mapOp1.join(mapOp2).where(0).equalTo(0).with((JoinFunction<Tuple2<Integer, String>, Tuple2<Integer, String>, Tuple3<Integer, String, String>>) (p1, p2) -> new Tuple3<>(p1.f0, p1.f1, p2.f1)).returns(Types.TUPLE(Types.INT, Types.STRING, Types.STRING));
+        // join hint: https://medium.com/big-data-processing/apache-flink-join-optimizer-ad1bb3da4842
+        DataSet<Tuple3<Integer, String, String>> joined = mapOp1.join(mapOp2, JoinOperatorBase.JoinHint.OPTIMIZER_CHOOSES).where(0).equalTo(0).with((JoinFunction<Tuple2<Integer, String>, Tuple2<Integer, String>, Tuple3<Integer, String, String>>) (p1, p2) -> new Tuple3<>(p1.f0, p1.f1, p2.f1)).returns(Types.TUPLE(Types.INT, Types.STRING, Types.STRING));
         // join datasets on person_id
         // joined format will be <id, person_name, state>
 
