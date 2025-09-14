@@ -3,27 +3,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.example</groupId>
-    <artifactId>word-count</artifactId>
+    <artifactId>join</artifactId>
     <parent>
         <groupId>com.example</groupId>
         <artifactId>flink-course</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath> <!-- optional if standard layout -->
     </parent>
-
-    <!-- Versions -->
-    <properties>
-        <!-- Plugins -->
-        <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-        <!-- compile for Java 8 -->
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <!-- Dependencies -->
-        <flink.version>1.12.2</flink.version>
-        <!-- General -->
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -51,7 +37,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.example.flink.WordCount</mainClass>
+                            <mainClass>com.example.flink.InnerJoin</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
