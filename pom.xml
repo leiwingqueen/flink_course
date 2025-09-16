@@ -42,6 +42,7 @@
         <module>word_count</module>
         <module>join</module>
         <module>word_count_stream</module>
+        <module>average_profit</module>
     </modules>
     <dependencies>
         <dependency>
