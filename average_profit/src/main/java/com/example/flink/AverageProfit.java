@@ -2,9 +2,11 @@ package com.example.flink;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
 public class AverageProfit {
@@ -14,65 +16,72 @@ public class AverageProfit {
 
         DataStream<String> data = env.readTextFile("./average_profit/avg");
 
-        // month, product, category, profit, count
-        DataStream<Tuple5<String, String, String, Integer, Integer>> mapped =
-                data.map(new Splitter()); // tuple  [June,Category5,Bat,12,1]
+        // TODO: implement average profit per month
+        // 1. map function: month, product, category, profit, count
         //        [June,Category4,Perfume,10,1]
+        DataStream<OutputData> output = data.map(new MapFunction<String, RawData>() {
+            @Override
+            public RawData map(String s) throws Exception {
+                String[] items = s.split(",");
+                return new RawData(items[1], Integer.parseInt(items[4]), 1);
+            }
+        }).keyBy(new KeySelector<RawData, String>() {
+            @Override
+            public String getKey(RawData rawData) throws Exception {
+                return rawData.month;
+            }
+        }).reduce(new ReduceFunction<RawData>() {
+            @Override
+            public RawData reduce(RawData current, RawData pre) throws Exception {
+                return new RawData(current.month, pre.profit + current.profit, current.count + pre.count);
+            }
+        }).map(new MapFunction<RawData, OutputData>() {
+            @Override
+            public OutputData map(RawData rawData) throws Exception {
+                return new OutputData(rawData.month,((double)rawData.profit)/rawData.count);
+            }
+        });
 
-        // groupBy 'month'
-        DataStream<Tuple5<String, String, String, Integer, Integer>> reduced =
-                mapped.keyBy(t -> t.f0).reduce(new Reduce1());
+
+        // 2. groupBy 'month'. use reduce function to sum profit and count
+
         // June { [Category5,Bat,12,1] Category4,Perfume,10,1}	//rolling reduce
         // reduced = { [Category4,Perfume,22,2] ..... }
         // month, avg. profit
-        DataStream<Tuple2<String, Double>> profitPerMonth =
-                reduced.map(new MapFunction<Tuple5<String, String, String, Integer, Integer>, Tuple2<String, Double>>() {
-                    public Tuple2<String, Double> map(Tuple5<String, String, String, Integer, Integer> input) {
-                        return new Tuple2<String, Double>(input.f0, new Double((input.f3 * 1.0) / input.f4));
-                    }
-                });
+        // 3. map function: month, avg. profit
 
         //profitPerMonth.print();
-        profitPerMonth.writeAsText("./average_profit/output");
+        output.writeAsText("./average_profit/output");
 
         // execute program
         env.execute("Avg Profit Per Month");
     }
 
-    // *************************************************************************
-    // USER FUNCTIONS                                                                                  // pre_result  = Category4,Perfume,22,2
-    // *************************************************************************
+    // 01-06-2018,June,Category5,Bat,12
+    public static class RawData{
+        private String month;
+        private int profit;
+        private int count;
 
-    public static class Reduce1 implements ReduceFunction<Tuple5<String, String, String, Integer, Integer>> {
-        public Tuple5<String,
-                String,
-                String,
-                Integer,
-                Integer>
-        reduce(Tuple5<String, String, String, Integer, Integer> current,
-               Tuple5<String, String, String, Integer, Integer> pre_result) {
-            return new Tuple5<String, String, String, Integer, Integer>(current.f0,
-                    current.f1,
-                    current.f2,
-                    current.f3 + pre_result.f3,
-                    current.f4 + pre_result.f4);
+        public RawData(String month, int profit, int count) {
+            this.month = month;
+            this.profit = profit;
+            this.count = count;
         }
     }
 
-    public static class Splitter implements MapFunction<String, Tuple5<String, String, String, Integer, Integer>> {
-        public Tuple5<String,
-                String,
-                String,
-                Integer,
-                Integer> map(String value) // 01-06-2018,June,Category5,Bat,12
-        {
-            String[] words = value.split(","); // words = [{01-06-2018},{June},{Category5},{Bat}.{12}
-            // ignore timestamp, we don't need it for any calculations
-            return new Tuple5<String, String, String, Integer, Integer>(words[1],
-                    words[2],
-                    words[3],
-                    Integer.parseInt(words[4]),
-                    1);
-        } //    June    Category5      Bat                      12
+    public static class OutputData{
+        private String month;
+        private double avgProfit;
+
+        public OutputData(String month, double avgProfit) {
+            this.month = month;
+            this.avgProfit = avgProfit;
+        }
+
+        @Override
+        public String toString() {
+            return this.month+","+this.avgProfit;
+        }
     }
 }
