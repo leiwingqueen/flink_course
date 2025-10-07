@@ -3,13 +3,14 @@ package com.example.flink;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.java.functions.KeySelector;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.streaming.api.datastream.DataStream;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AverageProfit {
+    private static final Logger log = LoggerFactory.getLogger(AverageProfit.class);
+
     public static void main(String[] args) throws Exception {
         // set up the streaming execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -32,7 +33,9 @@ public class AverageProfit {
             }
         }).reduce(new ReduceFunction<RawData>() {
             @Override
-            public RawData reduce(RawData current, RawData pre) throws Exception {
+            public RawData reduce(RawData pre, RawData current) throws Exception {
+                // String format = String.format("current:%d,pre:%d", current.count, pre.count);
+                // System.out.println(format);
                 return new RawData(current.month, pre.profit + current.profit, current.count + pre.count);
             }
         }).map(new MapFunction<RawData, OutputData>() {
